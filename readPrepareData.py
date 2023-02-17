@@ -30,7 +30,8 @@ def read_prepare_initial_data(path):
                        'PSAdaugiau0_1': 'persistent_psa', 'SURVIVAL': 'survival_months',
                        'BCR': 'bcr', 'MTS': 'mts', 'OS': 'overall_mortality',
                        'CSS': 'cancer_specific_mortality', 'BFS': 'survival_months_bcr',
-                       'MTS_men': 'survival_months_mts'},
+                       'MTS_men': 'survival_months_mts', 'BxGleason': 'biopsy_gleason',
+                       'Rpgleson': 'pathologic_gleason'},
               inplace=True)
 
     # Fill the LNI column NA values with 'unknown' value
