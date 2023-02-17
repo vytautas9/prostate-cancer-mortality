@@ -6,11 +6,17 @@ created patient index column and saves as picke file.
 
 from pickle import dump
 from pandas import read_sas
+from sklearn.model_selection import train_test_split
 
 
 def read_prepare_initial_data(path):
+    print(f'\nReading data from: {path} ........')
+    
     # Read, prepare, anonimize the initial data
     df = read_sas(path)
+
+    print(f'Finished reading, loaded dataset shape: {df.shape}')
+    print(f'Read column names: {df.columns}')
 
     # Select only relevant columns
     df = df[['Amzius', 'PSA', 'naujasCT', 'BxGleason', 'Bxkodas', 'RP_GG', 'pT',
@@ -31,7 +37,9 @@ def read_prepare_initial_data(path):
     df.fillna({'lni': 'unknown', 'r': 'unknown'}, inplace=True)
 
     # Drop rows with NA values, every row must have 0 NA values
+    print(f'Removing rows with NA values.......')
     df.dropna(thresh=df.shape[1], inplace=True)
+    print(f'Dataset shape after removing NA values: {df.shape}')
 
     # Change the data types of columns
     # Float --> Int --> String
@@ -67,12 +75,56 @@ def read_prepare_initial_data(path):
     # Create a patient ID index
     df['patient_id'] = range(1, len(df) + 1)
 
+    print(f'Returing dataset of shape: {df.shape}')
+    print(f'and such column names: {df.columns}')
+
     return df
+
+
+def trainTestSplit(x_columns_to_drop, y_columns, stratify_column, test_size):
+    # Train - test split
+
+    print('\n80/20% Train - Test split .......')
+    # 80/20 split and stratify based on 'overall_mortality'
+    data_train, data_test, y_train, y_test = train_test_split(
+        data.drop(x_columns_to_drop, axis=1),
+        data[y_columns], test_size=test_size, random_state=1, 
+        stratify=data[[stratify_column]])
+
+    data_train[y_columns] = y_train
+    data_test[y_columns] = y_test
+
+    print('Shape of train: ', data_train.shape, '\n')
+    print('Shape of test: ', data_test.shape, '\n')
+
+    return data_train, data_test
 
 
 if __name__ == '__main__':
     # Read the original data
     data_path = 'data/data_original.sas7bdat'
     data = read_prepare_initial_data(data_path)
+
+    # save the dataset
+    print(f'Saving cleaned dataset.....')
     with open('data/data_clean.pkl', 'wb') as f:
         dump(data, f)
+    print('Finished saving clean dataset')
+
+    # train - test split
+    # column names which will be dropped from X's (feature dataset)
+    x_columns_to_drop = ['bcr', 'mts', 'overall_mortality', 'cancer_specific_mortality', 
+                        'death_from_other_causes']
+
+    # columns names of Y's (response)
+    y_columns = ['bcr', 'mts', 'death_from_other_causes', 'cancer_specific_mortality']
+
+    train, test = trainTestSplit(x_columns_to_drop, y_columns, 'overall_mortality', 0.20)
+
+    # save train/test datasets
+    print(f'Saving train and test datasets.......')
+    with open('data/data_train.pkl', 'wb') as f:
+        dump(train, f)
+    with open('data/data_test.pkl', 'wb') as f:
+        dump(test, f)
+    print('Finished saving train and test datasets','\n')
