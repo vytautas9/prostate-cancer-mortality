@@ -110,6 +110,7 @@ if __name__ == '__main__':
     print(f'Saving cleaned dataset.....')
     with open('data/data_clean.pkl', 'wb') as f:
         dump(data, f)
+    data.to_csv('data/data_clean.csv', index=False)
     print('Finished saving clean dataset')
 
     # train - test split
@@ -126,6 +127,8 @@ if __name__ == '__main__':
     print(f'Saving train and test datasets.......')
     with open('data/data_train.pkl', 'wb') as f:
         dump(train, f)
+    train.to_csv('data/data_train.csv', index=False)
     with open('data/data_test.pkl', 'wb') as f:
         dump(test, f)
+    test.to_csv('data/data_test.csv', index=False)
     print('Finished saving train and test datasets','\n')
